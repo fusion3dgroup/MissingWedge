@@ -1,0 +1,186 @@
+﻿
+MissingWedge 
+(mw.m to mw.c)
+
+IDE : Code Block
+Compiler : gcc
+
+*********************************************
+
+CALL TREE : List of files calling other files
+
+----------------------------------------------
+main.c
+ ㄴ enhance.c
+   ㄴ LineMask_limitedangleRange.c
+   ㄴ A_fhp.c
+   ㄴ RecPF_constraint.c
+     ㄴ snr.c
+   ㄴ daubcqf.c
+   ㄴ mdwt.c
+   ㄴ midwt.c
+----------------------------------------------
+
+**********************************************
+
+Require function
+
+----------------------------------------------
+main.c 
+  ㄴimage read
+  ㄴmatrix to gray
+  ㄴreshape array
+  ㄴradon transform
+  ㄴinverse radon transform
+  ㄴrecon
+  ㄴabs
+  ㄴimage write
+  ㄴimage display
+
+enhance.c
+  ㄴreshape array
+  ㄴlength
+  ㄴsize (array dimension)
+  ㄴsqrt
+  ㄴFB(Frequency bandwidth ?)
+  ㄴfalse(Logical 0)
+  ㄴrange(range of value)
+  
+LineMask_limitedangleRange.c
+  ㄴlinspace(linearly spaced vector)
+  ㄴround
+  ㄴifftshift
+  ㄴfind (find indices and values of nonzero elements)
+
+A_fhp.c
+  ㄴfft2  
+  ㄴreal
+  ㄴimag
+
+RecPF_constraint.c
+  ㄴexist
+  ㄴerror
+  ㄴnnz (number of nonzero matrix elements)
+  ㄴsign
+  ㄴmax
+  ㄴCompute_Wx_Wy  ??
+  ㄴCompute_rhs_DxtU_DytU ??
+  ㄴCompute_Ux_Uy ??
+  ㄴPsi(polygamma function)
+  ㄴfft2
+  ㄴifft2
+  ㄴPsiT
+  ㄴnorm(vector and matrix norms)
+  
+daubcqf.c
+  ㄴrem
+  ㄴsort
+  ㄴconv
+  ㄴsqrt
+  ㄴsum
+  ㄴfliplr
+  ㄴrot90
+
+mdwt.c
+  ㄴomdwt
+
+midwt.c
+  ㄴomidwt
+
+snr.c
+  ㄴref_save
+  ㄴsig
+  ㄴvar
+-------------------------------------------------
+
+*************************************************
+
+History
+
+--------------------------------------------------
+Date : 2016 .07 .14
+   - 특이사항 없음
+
+
+Date : 2016 .07 .15
+   - matlab 'coder' 명령을 통해 enhance.m 코드 이하 트리 c 코드로 변환
+   - matlab function '@()'로 인한 변환 실패 (unsupported function)
+   - '@()' function 제거 -> matlab code 수정 후 coder 실행
+   - coder을 통해 enhance.m 파일의 30라인까지 c 코드로 변환
+
+
+Date : 2016 .07 .18
+   - Window 시스템 GCC 컴파일러 개발환경 설정 
+   - IDE 설정
+
+
+Date : 2016 .07 .19
+Edit - main.c  
+        ㄴlinpng   
+        ㄴradon transform   
+
+
+Date : 2016 .07 .20
+   - ubuntu로 개발환경 변경
+Edit - main.c  
+        ㄴimage read : libpng -> opencv 교체
+
+   
+Date : 2016 .07 .21
+Edit - main.c  
+        ㄴimage read 
+        ㄴmatrix to gray
+        ㄴreshape array
+	
+       LineMask_limitedangleRange.c
+ 	ㄴlinspace(linearly spaced vector)
+  	ㄴround
+
+Date : 2016 .07 .22
+Edit - enhance.c 
+ 	ㄴreshape
+ 	ㄴlength
+
+       LineMask_limitedangleRange.c
+ 	ㄴlinspace(linearly spaced vector)
+ 	ㄴround
+ 	ㄴzeros
+ 	ㄴifftshift
+
+--------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
