@@ -147,6 +147,36 @@ Edit - enhance.c
  	ㄴzeros
  	ㄴifftshift
 
+
+Date : 2016 .07 .27
+Edit - enhance.c
+  	ㄴreshape array
+  	ㄴlength
+  	ㄴsize (array dimension)
+  	ㄴsqrt
+  	ㄴfalse(Logical 0)
+  	ㄴrange(range of value)
+
+      LineMask_limitedangleRange.c
+ 	ㄴlinspace(linearly spaced vector)
+  	ㄴround
+  	ㄴifftshift
+  	ㄴfind (find indices and values of nonzero elements)
+      daubcqf.c
+ 	ㄴsort
+  	ㄴconv
+  	ㄴroots
+  	ㄴsqrt
+  	ㄴsum
+  	ㄴrot90
+      RecPF_constraint.c
+  	ㄴnnz (number of nonzero matrix elements)
+  	ㄴsign
+  	ㄴmax
+  	ㄴCompute_Wx_Wy  
+  	ㄴCompute_rhs_DxtU_DytU 
+  	ㄴCompute_Ux_Uy 
+  	ㄴnorm(vector and matrix norms)
 --------------------------------------------------
 
 
