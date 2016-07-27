@@ -21,14 +21,19 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
    LineMask_limitedandleTange(L,n, &M, &Mh, &mi, &mhi);
 
-    CvMat *OMEGA = cvCreateMat(mhi->rows,mhi->cols,CV_32FC1);
+    // return the mhi data reference..
+    //CvMat *OMEGA = cvCreateMat(mhi->rows,mhi->cols,CV_32F);
+    CvMat *OMEGA = cvCreateMat(256,1,CV_32F);
+    mhi = cvCreateMat(256,1,CV_32F);
+
     cvmCopy(mhi, OMEGA);
 
-    int k;
-    if(OMEGA->rows > OMEGA->cols){   //number of vector element?
-        k= OMEGA->rows;
-    }
-    else k= OMEGA->cols;
+    /* k=length(OMEGA);*/
+    int k = OMEGA->rows;
+    //if(OMEGA->rows > OMEGA->cols){   //number of vector element?
+    //    k= OMEGA->rows;
+    //}
+    //else k= OMEGA->cols;
 
     CvMat *b;
     A_fhp(x, OMEGA, &b);

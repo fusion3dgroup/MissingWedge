@@ -1,64 +1,98 @@
 /* Include files */
 #include <cv.h>
-
+#include <math.h>
 #define pi 3.141592
 
-int round_x(double a)
-{
-    int round_x;
+#define round_ban(a) (floor(a)*pow(10,0)+0.5)/pow(10,0)
 
-    if(a < 0)  round_x = (int)(a * 100 + 0.5);
-    else   round_x  = (int)(a * 100 + -0.5);
-
-}
 void LineMask_limitedandleTange(int L, int N, CvMat* M, CvMat* Mh, CvMat* mi, CvMat* mhi)
 {
-    /*
-    matlab : thc = linspace(0, pi-pi/L, L);
-    */
-    CvMat* thc = cvCreateMat(1,L,CV_32FC1);
-    CvMat *xc = cvCreateMat(1,L,CV_32FC1);
-    CvMat *yr = cvCreateMat(1,L,CV_32FC1);
+
+    /* matlab : thc = linspace(0, pi-pi/L, L); */
+
+    CvMat *thc = cvCreateMat(1,L,CV_32F);
 
     int i,j;
-    for(i = 1; i< thc->rows; i++){
-        cvmSet(thc,0,1,0);
-        cvmSet(thc,i,1,i*(pi-pi/L)/(L-1));
+    cvmSet(thc,0,0,0.);
+
+    for(i = 1; i< L; i++){
+        float elements = i*(pi-pi/L)/(L-1);
+        cvmSet(thc,0,i,elements);
     }
 
-    //matlab : M = zeros(N);
-    M = cvCreateMat(N,N,CV_32FC1);
+    /*matlab : M = zeros(N);*/
+    M = cvCreateMat(N,N,CV_32F);
     cvmSetZero(M);
 
-    int ll, nn;
-    int blank = -N/2+1;
-    CvMat *blank_aa = cvCreateMat(1, N,CV_32FC1 );
+    /* matlab : (-N/2+1 : N/2-1) */
+    int ll = 0;
+    CvMat *blank_aa = cvCreateMat(1, N, CV_32F);
+    CvMat *yr = cvCreateMat(1,N,CV_32F);
+    CvMat *xc = cvCreateMat(1,N,CV_32F);
 
     for(ll = 0; ll < N; ll++){
-        cvmSet(blank_aa, ll,1,blank+ll);
+        float elements= N*(-1.0)/2.0 + ll*1.0 + 1.0;
+        cvmSet(blank_aa, 0, ll, elements);
     }
 
+    /* matlab : for loop */
+    int nn=0;
+
+
     for(ll = 0; ll < L; ll++){
-        if(cvmGet(thc,ll,1)>= pi/3 && cvmGet(thc,ll,1)<= (pi/2+pi/18) ||
-            cvmGet(thc,ll,1) >=(2*pi/3-pi/18) && cvmGet(thc,ll,1)<= 2*pi/3){
+        if(cvmGet(thc,0,ll)>= pi/3 && cvmGet(thc,0,ll)<= (pi/2+pi/18) ||
+            cvmGet(thc,0,ll) >=(2*pi/3-pi/18) && cvmGet(thc,0,ll)<= 2*pi/3){
 
-            cvmSet(xc, ll,1,round_x(tan(cvmGet(thc,ll,1)) * cvmGet(blank_aa,ll,1)) + N/2+1);  //round function
+            /* matlab : xc = round(cot(thc(ll))*(-N/2+1:N/2-1))+N/2+1; */
+            float element_B = cvmGet(thc,0,ll);
+                  element_B = tan(element_B);
+                //cotangent(0)..
+                if(element_B == 0) element_B = 0.1;
+                   element_B = 1.0/element_B;
 
-            for(nn=0; nn<N-1; nn++){
-                cvmSet(M,cvmGet(xc,1,nn),nn+1,0);
+            for(i=0; i<blank_aa->cols-1; i++){
+                int element_C = round_ban(element_B * cvmGet(blank_aa,0, i))+N/2+1;
+                cvmSet(xc,0,i,element_C);
             }
+            for(nn = 0; nn<N-1; nn++){
+                /* matlab : M(nn+1,xc(nn)) = 1;*/
+                int elements_A = cvmGet(xc,0,nn);
+                cvmSet(M,nn+1,elements_A,1.0);
+            }
+
         }//if
         else{
-            if(cvmGet(thc,ll,1) <= pi/4 || cvmGet(thc,ll,1)>3*pi/4){
-                cvmSet(yr, ll,1,round_x(tan(cvmGet(thc,ll,1)) * cvmGet(blank_aa,ll,1)) + N/2+1);
-                for(nn = 1; nn<N-1; nn++){
-                    cvmSet(M,nn+1,cvmGet(yr,1,nn),1);
+            if(cvmGet(thc,0,ll) <= pi/4 || cvmGet(thc,0,ll)>3*pi/4){
+                /* matlab : yr = round(tan(thc(ll))*(-N/2+1:N/2-1))+N/2+1; */
+                float element_B = cvmGet(thc,0,ll);
+                      element_B = tan(element_B);
+
+                for(i=0; i<blank_aa->cols-1; i++){
+                    int element_C = round_ban(element_B * cvmGet(blank_aa,0, i))+N/2+1;
+                    cvmSet(yr,0,i,element_C);
+                }
+                for(nn = 0; nn<N-1; nn++){
+                    /* matlab : M(yr(nn), nn+1) = 1;*/
+                    int elements_A = cvmGet(yr,0,nn);
+                    cvmSet(M,elements_A,nn+1,1.0);
                 }
             }
             else{
-                cvmSet(xc, ll,1,round_x(tan(cvmGet(thc,ll,1)) * cvmGet(blank_aa,ll,1)) + N/2+1);  //round function
-                for(nn=1; nn<N-1; nn++){
-                      cvmSet(M,cvmGet(xc,1,nn),nn+1,1);
+                /* matlab : xc = round(cot(thc(ll))*(-N/2+1:N/2-1))+N/2+1; */
+                float element_B = cvmGet(thc,0,ll);
+                      element_B = tan(element_B);
+                    //cotangent(0)..
+                    if(element_B == 0) element_B = 0.1;
+                       element_B = 1.0/element_B;
+
+                for(i=0; i<blank_aa->cols-1; i++){
+                    int element_C = round_ban(element_B * cvmGet(blank_aa,0, i))+N/2+1;
+                    cvmSet(xc,0,i,element_C);
+                }
+                for(nn = 0; nn<N-1; nn++){
+                    /* matlab : M(nn+1,xc(nn)) = 1;*/
+                    int elements_A = cvmGet(xc,0,nn);
+                    cvmSet(M,nn+1,elements_A,1.0);
                 }
             }
         }//else
@@ -70,35 +104,70 @@ void LineMask_limitedandleTange(int L, int N, CvMat* M, CvMat* Mh, CvMat* mi, Cv
     cvmSetZero(Mh);
     cvmCopy(M,Mh);
 
-    for(i = N/2+2; i<N; i++){
-        for(j = 0; j<N; j++){
-            cvmSet(Mh, j, i, 0);
+    /* matlab : Mh =(N/2+2:N,:) = 0; */
+    int r,c;
+    for(c = 0; c<N; c++){
+        for(r = N/2+2; r<N; r++){
+            cvmSet(Mh, r, c, 0);
         }
     }
-    for(j = N/2+1; j<N; j++){
-        cvmSet(Mh, j, N/2+2, 0);
+    /* matlab : Mh =(N/2+1,N/2+1:N) = 0; */
+    for(c = N/2; c<N; c++){
+        cvmSet(Mh, N/2+1, c, 0);
     }
 
     cvFFT(M,M,1,1); //0:fft, 1:ifft
+
+    /* matlab : mMH = find(M)*/
     int count = 0;
-    for(i = 0; i<M->cols; i++){
-        for(j = 0; j<M->rows; j++){
-            if(cvmGet(M,j,i) != 0){
+    for(c = 0; c< M->cols; c++){
+        for(r = 0; r< M->rows; r++){
+            if(cvmGet(M,r,c) != 0){
                 count=count+1;
-                cvmSet(mi,1,count, j+i*M->cols);    //find the nonzero elements in matrix
             }
         }
     }
+    int a= count;
+    mi = cvCreateMat(a+1,1,CV_32F);
     count = 0;
+    for(c = 0; c< M->cols; c++){
+        for(r = 0; r< M->rows; r++){
+            if(cvmGet(M,r,c) != 0){
+                float elements = cvmGet(M,r,c);
+                cvmSet(mi,count,0, elements);    //find the nonzero elements in matrix
+                count=count+1;
+            }
+        }
+    }
 
     cvFFT(Mh,Mh,1,1);
-    for(i = 0; i<Mh->cols; i++){
-        for(j = 0; j<Mh->rows; j++){
-            if(cvmGet(Mh,j,i) != 0){
+
+    /* matlab : mMH = find(M)*/
+    count = 0;
+    for(c = 0; c< Mh->cols; c++){
+        for(r = 0; r< Mh->rows; r++){
+            if(cvmGet(Mh,r,c) != 0){
                 count=count+1;
-                cvmSet(mhi,1,count, j+i*Mh->cols);    //find the nonzero elements in matrix
             }
         }
     }
+
+    a= count;
+    mhi = cvCreateMat(a+1,1,CV_32F);
+    count = 0;
+    for(c = 0; c< Mh->cols; c++){
+        for(r = 0; r< Mh->rows; r++){
+            if(cvmGet(Mh,r,c) != 0){
+                cvmSet(mhi,count, 0, cvmGet(Mh,r,c));    //find the nonzero elements in matrix
+                count=count+1;
+            }
+        }
+    }
+
+
+    cvReleaseMat(&thc);
+    cvReleaseMat(&xc);
+    cvReleaseMat(&yr);
+    cvReleaseMat(&blank_aa);
 }
 

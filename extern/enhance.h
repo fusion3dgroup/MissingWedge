@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <cv.h>
 
+#include "LineMask_limitedangleRange.h"
+
 struct OPTS{
 
     double maxItr;
