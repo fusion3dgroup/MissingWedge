@@ -7,7 +7,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 {
     struct OPTS opts_para;
 
-  /*
+   /*
     matlab code : constraint = 1;  x = reshape(I,n*n,1); L   = 199;
                   [M,Mh,mi,mhi] = LineMask_limitedangleRange(L,n);
   */

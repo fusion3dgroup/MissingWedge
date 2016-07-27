@@ -20,10 +20,10 @@ int main()
 
     cvShowImage("image", image);
     cvWaitKey(0);
+    cvDestroyWindow("image");
 
     cvReleaseImage(&image);
     cvReleaseImage(&dstImageU);
-    cvDestroyWindow("image");
 
     return 0;
 }
