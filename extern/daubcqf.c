@@ -6,10 +6,21 @@ void daubcqf(int N, CvMat * hH){
 
     int K = N/2, a=1, p=1, i,j;
 
-    /*
-        matlab : q = sort(roots(q));
-                 qt = q(1:K-1);
-    */
+    /* matlab : for loop */
+
+    CvMat * h_0;
+    int c;
+    for(c = 0; c< 2; c++){
+        cvmSet(h_0, c, 0, 1.);
+    }
+
+    for(j=1; j< K-1; j++){
+        a = -a*0.25*(j+K-1)/j;
+
+    }
+
+    /*   matlab : q = sort(roots(q));
+                 qt = q(1:K-1); */
 
     CvMat* q, *q_roots, *q_sort, *qt;
     cvSolvePoly(q,q_roots,20,100);

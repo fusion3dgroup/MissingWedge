@@ -5,7 +5,7 @@
 #include "enhance.h"
 
 void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,
-                      int TVtype,struct OPTS opts_para ,CvMat* PsiT,CvMat* Psi,double range,IplImage* I,int constraint, CvMat* U)
+                      int TVtype,struct OPTS opts_para ,CvMat* PsiT,CvMat* Psi,double range,CvMat* I,int constraint, CvMat* U)
 {
 
     int bPrint = 0;
