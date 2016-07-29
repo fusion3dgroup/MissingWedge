@@ -5,7 +5,7 @@
 
 #define round_ban(a) (floor(a)*pow(10,0)+0.5)/pow(10,0)
 
-void LineMask_limitedandleTange(int L, int N, CvMat* M, CvMat* Mh, CvMat* mi, CvMat* mhi)
+void LineMask_limitedandleTange(int L, int N,  CvMat* mhi, CvMat* M, CvMat* Mh, CvMat* mi)
 {
 
     /* matlab : thc = linspace(0, pi-pi/L, L); */
@@ -127,8 +127,9 @@ void LineMask_limitedandleTange(int L, int N, CvMat* M, CvMat* Mh, CvMat* mi, Cv
             }
         }
     }
-    int a= count;
-    mi = cvCreateMat(a+1,1,CV_32F);
+    int a_blank= count+1;
+    mi = cvCreateMat(a_blank,1,CV_32F);
+
     count = 0;
     for(c = 0; c< M->cols; c++){
         for(r = 0; r< M->rows; r++){
@@ -152,18 +153,18 @@ void LineMask_limitedandleTange(int L, int N, CvMat* M, CvMat* Mh, CvMat* mi, Cv
         }
     }
 
-    a= count;
-    mhi = cvCreateMat(a+1,1,CV_32F);
+    a_blank= count;
+    mhi = cvCreateMat(a_blank+1,1,CV_32F);
     count = 0;
     for(c = 0; c< Mh->cols; c++){
         for(r = 0; r< Mh->rows; r++){
             if(cvmGet(Mh,r,c) != 0){
-                cvmSet(mhi,count, 0, cvmGet(Mh,r,c));    //find the nonzero elements in matrix
+                float elements = cvmGet(Mh,r,c);
+                cvmSet(mhi,count, 0, elements);    //find the nonzero elements in matrix
                 count=count+1;
             }
         }
     }
-
 
     cvReleaseMat(&thc);
     cvReleaseMat(&xc);

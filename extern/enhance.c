@@ -1,14 +1,17 @@
 /* Include files */
 #include "enhance.h"
+//#include "LineMask_limitedangleRange.h"
 #include <math.h>
 #define pi 3.141592
 
 #define round_ban(a) (floor(a)*pow(10,0)+0.5)/pow(10,0)
 
+
 void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_beta,
                     double m_tol, double m_aTV, double m_aL1, CvMat* U)
 {
     struct OPTS opts_para;
+
 
    /*
     matlab code : constraint = 1;  x = reshape(I,n*n,1); L   = 199;
@@ -20,10 +23,10 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
    int constraint = 1;
    int L = 199;
    int N = n;
+   int r,c;
 
-   //CvMat * M, *Mh, *mi,*mhi;
-   //LineMask_limitedandleTange(L,n, &M, &Mh, &mi, &mhi);
-
+   //CvMat *M, *Mh, *mi, *mhi, *blank;
+   //LineMask_limitedandleTange(L,n, mhi, M, Mh, mi);
     #if 1
     //CvMat *mhi = cvCreateMat(17974,1,CV_32F);
     //int i;
@@ -128,7 +131,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     cvmCopy(M,Mh);
 
     /* matlab : Mh =(N/2+2:N,:) = 0; */
-    int r,c;
+    //int r,c;
     for(c = 0; c<N; c++){
         for(r = N/2+2; r<N; r++){
             cvmSet(Mh, r, c, 0);
@@ -200,9 +203,9 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
     /* matlab : OMEGA = [1;OMEGA] */
     cvmSet(OMEGA, 0, 0, 1.);
-    for(i=0; i<mhi->rows; i++){
-        float elements = cvmGet(mhi, i,0);
-        cvmSet(OMEGA, i+1, 0, elements);
+    for(r=0; r<mhi->rows; r++){
+        float elements = cvmGet(mhi, r,0);
+        cvmSet(OMEGA, r+1, 0, elements);
     }
 
 
@@ -257,7 +260,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
 
     /* matlab : WT = []; W=[]; */
-     CvMat *wav, *W, *WT;
+     CvMat *wav;
 
      /*matlab : aTV = m_aTV; aL1 = m_aL1; */
     double aTV = m_aTV;
@@ -274,11 +277,35 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     cvmSet(wav,0,6,-0.8365);
     cvmSet(wav,0,7,0.4830);
 
+    /* matlab idwt */
+    double d_x[x->width][x->height], d_wav[wav->rows][wav->cols];
+    double W[x->width][x->height];
+    for(c = 0; c<x->height; c++){
+        for(r = 0; r<x->width; r++){
+             d_x[c][r] = cvGetReal2D(x,c,r);
+       }
+    }
+    for(c = 0; c<wav->cols; c++){
+        for(r = 0; r<wav->rows; r++){
+             d_wav[c][r] = cvmGet(wav,r,c);
+       }
+    }
+   // midwt(d_x,d_wav,W);
 
-    //midwt(x,wav,&W);
-    midwt(x,wav);
-    //mdwt(x,wav, &WT);
-    mdwt(x,wav);
+    /* matlab dwt */
+    double d_x_dwt[x->width][x->height], d_wav_dwt[wav->rows][wav->cols];
+    double WT[x->width][x->height];
+    for(c = 0; c<x->height; c++){
+        for(r = 0; r<x->width; r++){
+             d_x_dwt[c][r] = cvGetReal2D(x,c,r);
+       }
+    }
+    for(c = 0; c<wav->cols; c++){
+        for(r = 0; r<wav->rows; r++){
+             d_wav_dwt[c][r] = cvmGet(wav,r,c);
+       }
+    }
+    //mdwt(d_x_dwt,d_wav_dwt,WT);
 
     opts_para.maxItr = m_iter;
     opts_para.gamma = m_gamma;
@@ -289,8 +316,17 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
     /* matlab : pick = false(m,n); */
     CvMat * pick = cvCreateMat(m, n, CV_32F);
-    cvSetZero(pick);        //
+    cvSetZero(pick);
+
     /* matlab : pick(picks)=true; To Logical*/
+    for(r = 0; r<picks->rows; r++){
+        int elements = cvmGet(picks, r, 0);
+        int quotient = elements / pick->cols;
+        int remainder = elements % pick->cols;
+        cvmSet(pick, quotient, remainder, 1);
+    }
+
+
 
     /* matlab : range(I(:)); */
     double min, max;
@@ -298,7 +334,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
     double range = max -min; //difference between the maximun and the minimum of a I
 
-    RecPF_constraint(m,n,aTV, aL1,pick,B,2, opts_para, WT, W,range,image,constraint, &U);
+    RecPF_constraint(m,n,aTV, aL1,picks,B,2, opts_para, WT, W,range,image,constraint, &U);
 
 
     cvReleaseMat(&picks);
@@ -309,9 +345,9 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     cvReleaseImage(&FB);
     cvReleaseImage(&F);
 
-    cvReleaseMat(&thc);
-    cvReleaseMat(&xc);
-    cvReleaseMat(&yr);
-    cvReleaseMat(&blank_aa);
+    //cvReleaseMat(&thc);
+    //cvReleaseMat(&xc);
+    //cvReleaseMat(&yr);
+    //cvReleaseMat(&blank_aa);
 
   }

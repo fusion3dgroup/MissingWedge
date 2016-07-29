@@ -50,26 +50,26 @@ void idwt_convolution(double *x_out, size_t lx, double *coeff_low, double *coeff
 void idwt_rwt_free(void *ptr){
     free(ptr);
 }
-void idwt_free(double **x_dummy, double **y_dummy_low, double **y_dummy_high, double **coeff_low, double **coeff_high) {
+void idwt_free(double **x_dummy, double **y_dummy_low, double **y_dummy_high, double **coeff_low){//, double **coeff_high) {
   idwt_rwt_free(*x_dummy);
   idwt_rwt_free(*y_dummy_low);
   idwt_rwt_free(*y_dummy_high);
   idwt_rwt_free(*coeff_low);
-  idwt_rwt_free(*coeff_high);
+ // idwt_rwt_free(*coeff_high);
 }
 
 
-void midwt(double *x, double* h){//CvMat* L, CvMat* W){
+void midwt(double *x, double *h, double *y){//CvMat* L, CvMat* W){
 
 
     //inverse discrete 1-d wavelet transform
 
 //void idwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
- size_t nrows = 2;
- size_t ncols = 2;
- int ncoeff = 1;
+ size_t nrows = 20;
+ size_t ncols = 20;
+ int ncoeff = 5;
  int levels=1;
- double *y;
+ //double *y;
 
   double  *coeff_low, *coeff_high, *y_dummy_low, *y_dummy_high, *x_dummy;
   long i;
@@ -142,6 +142,6 @@ void midwt(double *x, double* h){//CvMat* L, CvMat* W){
       current_rows = current_rows*2;
     current_cols = current_cols*2;
   }
-  idwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low, &coeff_high);
+  idwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low);//, &coeff_high);
 
 }

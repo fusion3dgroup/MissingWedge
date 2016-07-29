@@ -1,4 +1,5 @@
 #include <cv.h>
+
 #define mat(a,i,j,m,n) (*(a+(m*(j)+i)))
 #define max(A,B) (A >B ? A:B)
 
@@ -11,6 +12,7 @@ void dwt_allocate(size_t m, size_t n, int ncoeff, double **x_dummy, double **y_d
   *y_dummy_high = (double *) rwt_calloc(max(m,n),          sizeof(double));
   *coeff_low    = (double *) rwt_calloc(ncoeff,            sizeof(double));
   *coeff_high   = (double *) rwt_calloc(ncoeff,            sizeof(double));
+
 }
 
 void dwt_coefficients(int ncoeff, double *h, double **coeff_low, double **coeff_high) {
@@ -51,17 +53,17 @@ void dwt_free(double **x_dummy, double **y_dummy_low, double **y_dummy_high, dou
   rwt_free(*coeff_high);
 }
 
-void mdwt(double *x, double* h){
+void mdwt(double *x, double *h, double *y){
 
     //inverse discrete 1-d wavelet transform
 
 //void dwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
 
-    size_t nrows=2;
-    size_t ncols=2;
-    int ncoeff=1;
+    size_t nrows=20;
+    size_t ncols=20;
+    int ncoeff=5;
     int levels=1;
-    double *y;
+    //double *y;
 
 
   double  *coeff_low, *coeff_high, *y_dummy_low, *y_dummy_high, *x_dummy;
