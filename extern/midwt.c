@@ -1,9 +1,10 @@
 #include <cv.h>
+#include <stdio.h>
 #define mat(a,i,j,m,n) (*(a+(m*(j)+i)))
 #define max(A,B) (A >B ? A:B)
 
 void *idwt_rwt_calloc(size_t num, size_t size){
-    return calloc(num,size);
+    return calloc(num, size);
 }
 void idwt_allocate(size_t m, size_t n, int ncoeff, double **x_dummy, double **y_dummy_low, double **y_dummy_high, double **coeff_low, double **coeff_high) {
   *x_dummy      = (double *) idwt_rwt_calloc(max(m,n),            sizeof(double));
@@ -50,24 +51,24 @@ void idwt_convolution(double *x_out, size_t lx, double *coeff_low, double *coeff
 void idwt_rwt_free(void *ptr){
     free(ptr);
 }
-void idwt_free(double **x_dummy, double **y_dummy_low, double **y_dummy_high, double **coeff_low){//, double **coeff_high) {
+void idwt_free(double **x_dummy, double **y_dummy_low, double **y_dummy_high, double **coeff_low, double **coeff_high) {
   idwt_rwt_free(*x_dummy);
   idwt_rwt_free(*y_dummy_low);
   idwt_rwt_free(*y_dummy_high);
   idwt_rwt_free(*coeff_low);
- // idwt_rwt_free(*coeff_high);
+  idwt_rwt_free(*coeff_high);
 }
 
 
-void midwt(double *x, double *h, double *y){//CvMat* L, CvMat* W){
+void midwt(double *x, double *h, double *y){
 
 
     //inverse discrete 1-d wavelet transform
 
 //void idwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
- size_t nrows = 20;
- size_t ncols = 20;
- int ncoeff = 5;
+ size_t nrows = 256*256;
+ size_t ncols = 1;
+ int ncoeff = 2;
  int levels=1;
  //double *y;
 
@@ -142,6 +143,26 @@ void midwt(double *x, double *h, double *y){//CvMat* L, CvMat* W){
       current_rows = current_rows*2;
     current_cols = current_cols*2;
   }
-  idwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low);//, &coeff_high);
+  idwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low, &coeff_high);
+
+/* debug ------------------------------------------------------------*/
+#if 0
+    FILE * pf;
+    pf = fopen("out_dst.txt", "w");
+    int r;
+    for(r = 0; r<256*256; r++){
+
+            //printf("%f ",elements);
+            fprintf(pf, "%f ", y[r],0);
+
+           // if(c == W_mat->cols-1){
+           //     fprintf(pf,"\n ",0);
+            //}
+        }
+
+    fclose(pf);
+#endif // 0
+/*---------------------------------------------------------------*/
+
 
 }

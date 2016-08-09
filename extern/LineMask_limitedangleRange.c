@@ -116,8 +116,6 @@ void LineMask_limitedandleTange(int L, int N,  CvMat* mhi, CvMat* M, CvMat* Mh, 
         cvmSet(Mh, N/2+1, c, 0);
     }
 
-    cvFFT(M,M,1,1); //0:fft, 1:ifft
-
     /* matlab : mMH = find(M)*/
     int count = 0;
     for(c = 0; c< M->cols; c++){
@@ -140,8 +138,6 @@ void LineMask_limitedandleTange(int L, int N,  CvMat* mhi, CvMat* M, CvMat* Mh, 
             }
         }
     }
-
-    cvFFT(Mh,Mh,1,1);
 
     /* matlab : mMH = find(M)*/
     count = 0;
