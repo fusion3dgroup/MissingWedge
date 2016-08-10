@@ -179,6 +179,17 @@ Edit - enhance.c
   	ㄴnorm(vector and matrix norms)
 --------------------------------------------------
 
+Date : 2016 .08 .09
+Edit - RecPF_constraint.c
+	ㄴpsf2otf function
+        ㄴmdwt, midwt function
+
+Date : 2016 .08 .10
+Edit - RecPF_constraint.c
+	ㄴcomplex struct 
+
+
+
 
 
 
