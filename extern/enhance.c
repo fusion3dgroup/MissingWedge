@@ -24,24 +24,6 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
    int L = 199;
    int N = n;
    int r,c;
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<image->height; r++){
-        for(c = 0; c<image->width; c++){
-            float elements = cvGetReal2D(image,r,c);
-            fprintf(pf, "%f ", elements,0);
-            if(c == image->height-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = image->height;
-            int row_size = image->width;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
 
     CvMat *x_mat = cvCreateMat(x_ipl->height,x_ipl->width,CV_32F);
    /* matlab : org = double(i)*/
@@ -61,27 +43,6 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
                 cvmSet(x,aa,0,elements);
         }
     }
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<x_ipl->height; r++){
-        for(c = 0; c<x_ipl->width; c++){
-            float elements = (float)cvGetReal2D(x_ipl,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == x_ipl->height-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            //int col_size = freq->cols;
-           // int row_size = freq->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-
 
     #if 1
     //LineMask_limitedandleTange(L,n, mhi, M, Mh, mi);
@@ -107,6 +68,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     CvMat *blank_aa = cvCreateMat(1, N-1, CV_32F);
     CvMat *yr = cvCreateMat(1,N-1,CV_32F);
     CvMat *xc = cvCreateMat(1,N-1,CV_32F);
+
 
     for(ll = 0; ll < blank_aa->cols; ll++){
         float elements= N*(-1.0)/2.0+1.0 + ll*1.0;
@@ -175,77 +137,19 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
              }
         }//else
     }//for
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<M->rows; r++){
-        for(c = 0; c<M->cols; c++){
-            float elements = cvmGet(M,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
 
-            if(c == M->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = M->cols;
-            int row_size = M->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-/* debug ------------------------------------------------------------*/
-#if 0
-    //find(M)
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
 
-    int d_count = 0;
-    for(c = 0; c< M->cols; c++){
-        for(r = 0; r< M->rows; r++){
-            if(cvmGet(M,r,c) != 0){
-                d_count=d_count+1;
-            }
-        }
-    }
-
-    int d_a= d_count;
-    CvMat *d_mi = cvCreateMat(d_a,1,CV_32F);
-    d_count= 0;
-    for(c = 0; c< M->cols; c++){
-        for(r = 0; r< M->rows; r++){
-            if(cvmGet(M,r,c) != 0.0){
-                float elements = c * M->rows + r+1;
-                cvmSet(d_mi,d_count, 0, elements);    //find the nonzero elements in matrix
-                d_count=d_count+1;
-            }
-        }
-    }
-    d_count = 0;
-
-    for(c = 0; c<d_mi->cols; c++){
-        for(r = 0; r<d_mi->rows; r++){
-            float elements = cvmGet(d_mi,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == d_mi->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = d_mi->cols;
-            int row_size = d_mi->rows;
-
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
+    cvReleaseMat(&yr);
+    cvReleaseMat(&xc);
+    cvReleaseMat(&blank_aa);
+    cvReleaseMat(&thc);
 
     //upper half plane mask
     CvMat *Mh = cvCreateMat(N,N,CV_32FC1);
     cvmSetZero(Mh);
     cvmCopy(M,Mh);
+
+
 
     /* matlab : Mh(N/2+2:N,:) = 0; */
     for(c = 0; c<N; c++){
@@ -253,7 +157,6 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
             cvmSet(Mh, r, c, 0.0);
         }
     }
-
     /* matlab : Mh(N/2+1,N/2+1:N) = 0; */
     for(c = N/2; c<N; c++){
         cvmSet(Mh, N/2, c, 0.0);
@@ -261,6 +164,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
 
     /*M = ifftshift(M); */
     CvMat *M_blank = cvCreateMat(Mh->rows, Mh->cols, CV_32F);
+
     for(c = 0; c< M->cols; c++){
         for(r = 0; r< M->rows; r++){
             if(c < M->cols/2 && r < M->rows/2){ // first quadrant
@@ -283,9 +187,9 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     }
     /* matlab : mi = find(M)*/
     int count = 0;
-    for(c = 0; c< M->cols; c++){
-        for(r = 0; r< M->rows; r++){
-            if(cvmGet(M,r,c) != 0){
+    for(c = 0; c< M_blank->cols; c++){
+        for(r = 0; r< M_blank->rows; r++){
+            if(cvmGet(M_blank,r,c) != 0){
                 count=count+1;
             }
         }
@@ -349,27 +253,10 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
             }
         }
     }
-
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<mhi->rows; r++){
-        for(c = 0; c<mhi->cols; c++){
-            float elements = cvmGet(mhi,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == mhi->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = mhi->cols;
-            int row_size = mhi->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
+    cvReleaseMat(&M);
+    cvReleaseMat(&Mh);
+    cvReleaseMat(&M_blank);
+    cvReleaseMat(&Mh_blank);
 
     #endif // 0
 
@@ -385,12 +272,15 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
         float elements = cvmGet(mhi, r,0);
         cvmSet(OMEGA, r+1, 0, elements);
     }
-
+    cvReleaseMat(&mi);
+    cvReleaseMat(&mhi);
     //CvMat *b;
     //A_fhp(x, OMEGA, &b);
 
     CvMat *picks = cvCreateMat(OMEGA->rows, OMEGA->cols, CV_32F);
     cvmCopy(OMEGA,picks);
+
+   cvReleaseMat(&OMEGA);
 
    /* matlab : F = I */
     CvMat *F_Mat = cvCreateMat(x_mat->rows, x_mat->cols, CV_32F);
@@ -399,148 +289,49 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     int m = F_Mat->rows;
     n = F_Mat->cols;
 
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<F_Mat->rows; r++){
-        for(c = 0; c<F_Mat->cols; c++){
-            float elements = cvmGet(F_Mat,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == F_Mat->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = F_Mat->cols;
-            int row_size = F_Mat->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-
     /* matlab : FB = fft2(F)/sqrt(m*n); */
     CvMat *FB = cvCreateMat(F_Mat->rows, F_Mat->cols, CV_32F);
-
+    CvMat* FB_imag =cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32FC1);
     CvMat *imaginaryInput = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32F);
-    CvMat *imageinaryOutput = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32F);
-
-    CvMat *realOutput = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32F);
-
-    CvMat *F_Mat_blank = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32FC1);
-
+    CvMat *F_Mat_real = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32FC1);
     CvMat *F_Mat_FFT = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32FC2);
-    CvMat *F_Mat_blank_out = cvCreateMat(F_Mat->rows,F_Mat->cols,CV_32FC2);
-
 
     cvmSetZero(imaginaryInput);
     cvMerge(F_Mat, imaginaryInput,NULL, NULL, F_Mat_FFT);
 
-    cvDFT(F_Mat_FFT, F_Mat_blank_out, CV_DXT_FORWARD ,0);
-    cvSplit(F_Mat_blank_out,F_Mat_blank,imageinaryOutput, NULL, NULL);
+    cvDFT(F_Mat_FFT, F_Mat_FFT, CV_DXT_FORWARD ,0);
+    cvSplit(F_Mat_FFT,F_Mat_real,imaginaryInput, NULL, NULL);
 
-    cvmAdd(F_Mat_blank,imageinaryOutput,F_Mat_blank);
-
-    cvReleaseMat(&realOutput);
-    cvReleaseMat(&imaginaryInput);
-    cvReleaseMat(&imageinaryOutput);
     cvReleaseMat(&F_Mat_FFT);
-    cvReleaseMat(&F_Mat_blank_out);
-
-    //cvDFT(F_Mat_blank, F_Mat_blank,CV_DXT_INVERSE_SCALE,0);
-/*
-        CvMat *fft2_U_inv_blank = cvCreateMat(F_Mat_blank->rows, F_Mat_blank->cols, CV_32FC2);
-        CvMat *U_blank = cvCreateMat(F_Mat_blank->rows, F_Mat_blank->cols, CV_32FC2);
-
-
-        cvMerge(F_Mat_blank, imageinaryOutput,NULL, NULL, fft2_U_inv_blank);
-        cvDFT(fft2_U_inv_blank, U_blank, CV_DXT_INVERSE_SCALE, 0);
-        cvSplit(U_blank,F_Mat_blank,imageinaryOutput, NULL, NULL);
-    //cvReleaseMat(&imageinaryOutput);
-*/
-
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<F_Mat_blank->rows; r++){
-        for(c = 0; c<F_Mat_blank->cols; c++){
-            float elements = cvmGet(F_Mat_blank,r,c);
-
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == F_Mat_blank->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = F_Mat_blank->cols;
-            int row_size = F_Mat_blank->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
 
 
     for(c = 0; c<F_Mat->cols; c++){
         for(r=0; r<F_Mat->rows; r++){
-            float elements= cvmGet(F_Mat_blank,r,c)/sqrt(m*n);
-            cvmSet(FB,r,c,elements);
+            float elements_real= cvmGet(F_Mat_real,r,c)/sqrt(m*n);
+            float elements_imag = cvmGet(imaginaryInput,r,c)/sqrt(m*n);
+            cvmSet(FB,r,c,elements_real);
+            cvmSet(FB_imag,r,c,elements_imag);
         }
     }
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<FB->rows; r++){
-        for(c = 0; c<FB->cols; c++){
-            float elements = cvmGet(FB,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
+    cvReleaseMat(&F_Mat);
+    cvReleaseMat(&imaginaryInput);
+    cvReleaseMat(&F_Mat_real);
 
-            if(c == FB->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = FB->cols;
-            int row_size = FB->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
 
     /* matlab : B=FB(Picks); */
     CvMat *B = cvCreateMat(picks->rows, picks->cols, CV_32F);
-
+    CvMat *B_imag = cvCreateMat(picks->rows, picks->cols, CV_32F);
     for(r = 0; r< picks->rows; r++){
         int pick_blank = cvmGet(picks,r,0) -1 ;
         int quotient = pick_blank/ FB->cols;
         int remainder = pick_blank % FB->cols;
         float elements = cvmGet(FB,remainder,quotient);
+        float elements_imag = cvmGet(FB_imag,remainder,quotient);
         cvmSet(B, r, 0, elements);
+        cvmSet(B_imag,r,0,elements_imag);
     }
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<B->rows; r++){
-        for(c = 0; c<B->cols; c++){
-            float elements = cvmGet(B,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == B->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = B->cols;
-            int row_size = B->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-
+    cvReleaseMat(&FB);
+    cvReleaseMat(&FB_imag);
     /* matlab : WT = []; W=[]; */
 
      /*matlab : aTV = m_aTV; aL1 = m_aL1; */
@@ -559,62 +350,8 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     //cvmSet(wav,0,7,0.4830);
 
 
-
     CvMat *W_mat = cvCreateMat(x->rows, x->cols, CV_32F);
     CvMat *WT_mat = cvCreateMat(x->rows, x->cols, CV_32F);
-#if 0
-    /* matlab idwt */
-    double d_x[x->cols * x->rows], d_wav[wav->rows*wav->cols];
-    double W[x->cols * x->rows];
-
-     /* matlab dwt */
-    double d_x_dwt[x->cols * x->rows], d_wav_dwt[wav->rows * wav->cols];
-    double WT[x->cols * x->rows];
-
-    for(r = 0; r< x->rows * x->cols; r++){
-         d_x[r] = cvmGet(x,r,0);
-         d_x_dwt[r] = cvmGet(x,r,0);
-    }
-    for(c = 0; c<wav->cols; c++){
-         d_wav[c] = cvmGet(wav,0,c);
-         d_wav_dwt[c] = cvmGet(wav,0,c);
-    }
-    //y :input
-    midwt(W,d_wav,d_x);
-    //x : input
-    mdwt(d_x_dwt,d_wav_dwt,WT);
-
-    /* double -> cvmat */
-    CvMat *W_mat = cvCreateMat(x->rows, x->cols, CV_32F);
-    CvMat *WT_mat = cvCreateMat(x->rows, x->cols, CV_32F);
-
-    //int kk =0, count_aa = 0;
-    for(r = 0; r<(x->rows*x->cols); r++){
-        cvmSet(W_mat,r,0,W[r]);
-        cvmSet(WT_mat,r,0,WT[r]);
-    }
-#endif // 0
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<WT_mat->rows; r++){
-        for(c = 0; c<WT_mat->cols; c++){
-            float elements = cvmGet(WT_mat,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == WT_mat->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = WT_mat->cols;
-            int row_size = WT_mat->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-
 
     opts_para.maxItr = m_iter;
     opts_para.gamma = m_gamma;
@@ -635,41 +372,7 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
         int remainder = elements % pick->rows;
         cvmSet(pick, remainder,quotient, 1);
     }
-
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    for(r = 0; r<pick->rows; r++){
-        for(c = 0; c<pick->cols; c++){
-            float elements = cvmGet(pick,r,c);
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", elements,0);
-
-            if(c == pick->cols-1){
-                fprintf(pf,"\n ",0);
-            }
-        }
-    }
-            int col_size = pick->cols;
-            int row_size = pick->rows;
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-/* debug ------------------------------------------------------------*/
-#if 0
-    //find(M)
-    int d_count = 0;
-    for(c = 0; c< pick->cols; c++){
-        for(r = 0; r< pick->rows; r++){
-            if(cvmGet(pick,r,c) != 0){
-                d_count=d_count+1;
-            }
-        }
-    }
-
-#endif // 0
-/*---------------------------------------------------------------*/
+    cvReleaseMat(&picks);
    /* matlab : range(I(:)); */
     double min, max;
     cvMinMaxLoc(x_mat,&min,&max, 0,0,0);
@@ -677,16 +380,23 @@ void enhance(IplImage *image, int n, double m_iter, double m_gamma, double m_bet
     int range = max -min; //difference between the maximun and the minimum of a I
 
 
-    RecPF_constraint(m,n,aTV, aL1,pick,B,2, opts_para, WT_mat, W_mat,range,x_mat,constraint,wav);
 
-//-------------------------------------------------------------------------------------------------------
+    RecPF_constraint(m,n,aTV, aL1,pick,B,B_imag,2, opts_para, WT_mat, W_mat,range,x_mat,constraint,wav);
 
-    cvReleaseMat(&picks);
-    cvReleaseMat(&FB);
+    cvReleaseImage(&x_ipl);
+    cvReleaseMat(&x_mat);
+    cvReleaseMat(&x);
+
+    cvReleaseMat(&F_Mat);
+
+    cvReleaseMat(&B);
+    cvReleaseMat(&B_imag);
+
     cvReleaseMat(&wav);
-    //cvReleaseMat(&W);
-   // cvReleaseMat(&WT);
-    cvReleaseImage(&FB);
-    //cvReleaseImage(&F);
+
+    cvReleaseMat(&W_mat);
+    cvReleaseMat(&WT_mat);
+    cvReleaseMat(&pick);
+
 
   }

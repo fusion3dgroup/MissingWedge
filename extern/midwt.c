@@ -3,6 +3,7 @@
 #define mat(a,i,j,m,n) (*(a+(m*(j)+i)))
 #define max(A,B) (A >B ? A:B)
 
+#if 1
 void *idwt_rwt_calloc(size_t num, size_t size){
     return calloc(num, size);
 }
@@ -66,10 +67,10 @@ void midwt(double *x, double *h, double *y){
     //inverse discrete 1-d wavelet transform
 
 //void idwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
- size_t nrows = 256*256;
- size_t ncols = 1;
+ size_t nrows = 256;
+ size_t ncols = 256;
  int ncoeff = 2;
- int levels=1;
+ int levels=2;
  //double *y;
 
   double  *coeff_low, *coeff_high, *y_dummy_low, *y_dummy_high, *x_dummy;
@@ -122,7 +123,6 @@ void midwt(double *x, double *h, double *y){
 	  mat(x, i, idx_cols, nrows, ncols) = x_dummy[i];
       }
     }
-
     /* go by rows */
     for (idx_rows=0; idx_rows<current_rows; idx_rows++) {           /* loop over rows */
       /* store in dummy variable */
@@ -144,25 +144,8 @@ void midwt(double *x, double *h, double *y){
     current_cols = current_cols*2;
   }
   idwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low, &coeff_high);
-
-/* debug ------------------------------------------------------------*/
-#if 0
-    FILE * pf;
-    pf = fopen("out_dst.txt", "w");
-    int r;
-    for(r = 0; r<256*256; r++){
-
-            //printf("%f ",elements);
-            fprintf(pf, "%f ", y[r],0);
-
-           // if(c == W_mat->cols-1){
-           //     fprintf(pf,"\n ",0);
-            //}
-        }
-
-    fclose(pf);
-#endif // 0
-/*---------------------------------------------------------------*/
-
-
 }
+
+
+#endif // 0
+

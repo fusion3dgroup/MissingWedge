@@ -12,7 +12,7 @@ int main()
     //Read the .png image
     IplImage *image = cvLoadImage("sample.png");
 
-    double m_aTV = 1e-4, m_aL1 = 1e-6, m_iter = 2, m_gamma = 1.0, m_beta = 10, m_tol = 1e-10;
+    float m_aTV = 1.000e-4, m_aL1 = 1.000e-6, m_iter = 8.0, m_gamma = 1.0, m_beta = 20.0, m_tol = 1e-10;
 
     IplImage *dstImageU = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
 
@@ -21,8 +21,6 @@ int main()
     //F_Mat = cvGetMat(image,&matHeader,0,0);
 
     enhance(image, n, m_iter, m_gamma, m_beta, m_tol, m_aTV, m_aL1, &dstImageU);
-
-
 
 
     cvReleaseImage(&image);
