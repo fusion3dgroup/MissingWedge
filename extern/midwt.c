@@ -2,6 +2,7 @@
 #include <stdio.h>
 #define mat(a,i,j,m,n) (*(a+(m*(j)+i)))
 #define max(A,B) (A >B ? A:B)
+//#include "mex.h"
 
 #if 1
 void *idwt_rwt_calloc(size_t num, size_t size){
@@ -26,7 +27,7 @@ void idwt_coefficients(int ncoeff, double *h, double **coeff_low, double **coeff
 }
 
 void idwt_convolution(double *x_out, size_t lx, double *coeff_low, double *coeff_high, int ncoeff_minus_one, int ncoeff_halved_minus_one, double *x_in_low, double *x_in_high) {
-  int k;
+   int k;
   size_t i, j, ind, tj;
   double x0, x1;
 
@@ -49,6 +50,7 @@ void idwt_convolution(double *x_out, size_t lx, double *coeff_low, double *coeff
     x_out[ind++] = x1;
   }
 }
+
 void idwt_rwt_free(void *ptr){
     free(ptr);
 }
@@ -67,10 +69,10 @@ void midwt(double *x, double *h, double *y){
     //inverse discrete 1-d wavelet transform
 
 //void idwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
- size_t nrows = 256;
+ size_t nrows = 256;//*256;
  size_t ncols = 256;
- int ncoeff = 2;
- int levels=2;
+ int ncoeff = 4;
+ int levels=8;
  //double *y;
 
   double  *coeff_low, *coeff_high, *y_dummy_low, *y_dummy_high, *x_dummy;

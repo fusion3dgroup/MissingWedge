@@ -59,15 +59,15 @@ void mdwt(double *x, double *h, double *y){
 
 //void dwt(double *x, size_t nrows, size_t ncols, double *h, int ncoeff, int levels, double *y) {
 
-    //size_t nrows=256;
-    //size_t ncols=256;
-    //int ncoeff=4;
-    //int levels=1000;
-
-        size_t nrows=256;
+    size_t nrows=256;
     size_t ncols=256;
     int ncoeff=4;
-    int levels=2;
+    int levels=1000;
+
+    //    size_t nrows=256;
+    //size_t ncols=256;
+    //int ncoeff=4;
+    //int levels=2;
     //double *y;
 
 
@@ -131,5 +131,4 @@ void mdwt(double *x, double *h, double *y){
     }
   }
   dwt_free(&x_dummy, &y_dummy_low, &y_dummy_high, &coeff_low, &coeff_high);
-
 }

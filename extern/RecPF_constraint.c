@@ -627,14 +627,18 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
         cvReleaseMat(&DytU_INDEX_01_imag);
         cvReleaseMat(&DytU_INDEX_02_imag);
         cvReleaseMat(&DytU_imag);
+
+
+
+
 #endif // 0
 
         /* matlab : if loop */
         CvMat* sub_blank = cvCreateMat(Z->rows,Z->cols,CV_32F);
         CvMat* Z_blank = cvCreateMat(Z->rows,Z->cols,CV_32F);
 
-        double d_x[Z->cols][Z->rows], d_wav[wav->rows][wav->cols];
-        double W[Z->cols][Z->rows];
+        double d_x[Z->rows][Z->cols], d_wav[wav->rows][wav->cols];
+        double W[Z->rows][Z->cols];
         //double d_h[Z->cols][Z->rows];
 
         if(aL1 > 0){
@@ -646,10 +650,12 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
             /* Psi(Z-d) */
             for(c = 0; c< Z->cols; c++){
                 for(r = 0; r< Z->rows; r++){
-                 d_x[r][c] = cvmGet(Z_blank,r,c);
+
+                        d_x[r][c] = cvmGet(Z_blank,r,c);
 
                 }
             }
+
             for(c = 0; c<wav->cols; c++){
                 for(r = 0; r<wav->rows; r++){
                  d_wav[r][c] = cvmGet(wav,r,c);
@@ -666,6 +672,7 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
                 }
              }
 
+  //           cvNormalize(sub_blank,sub_blank,0,20,CV_MINMAX,NULL);
 
             /* (aL1*beta)*Psi(Z-d)*/
             for(c = 0; c<d_penalty->cols; c++){
@@ -676,21 +683,37 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
             }
             cvmAdd(rhs, d_penalty, rhs);
         }
+
         cvReleaseMat(&sub_blank);
         cvReleaseMat(&Z_blank);
 
-/* debug ------------------------------------------------------------*/
-#if 0
+
+
+        /* matlab : fft2_U = (Numer1 + fft2(rhs))./Denom;
+                                       F_Mat_blank_Rec               */
+
+
+    CvMat *F_Mat_FFT_Rec = cvCreateMat(rhs->rows,rhs->cols,CV_32FC2);
+    cvMerge(rhs, rhs_imag,NULL, NULL, F_Mat_FFT_Rec);
+
+    cvDFT(F_Mat_FFT_Rec, F_Mat_FFT_Rec, CV_DXT_FORWARD ,F_Mat_FFT_Rec->rows);
+ 
+    cvSplit(F_Mat_FFT_Rec,rhs,rhs_imag, NULL, NULL);
+   
+    cvReleaseMat(&F_Mat_FFT_Rec);
+
+         /* debug ------------------------------------------------------------*/
+#if 1
     FILE * pf;
     pf = fopen("out_dst.txt", "w");
 
-    for(r = 0; r<rhs_imag->rows; r++){
-        for(c = 0; c<rhs_imag->cols; c++){
-            float elements = cvmGet(rhs_imag,r,c);
+    for(r = 0; r<rhs->rows; r++){
+        for(c = 0; c<rhs->cols; c++){
+            float elements = cvmGet(rhs,r,c);
             //printf("%f ",elements);
             fprintf(pf, "%f ", elements,0);
 
-            if(c == rhs_imag->cols-1){
+            if(c == rhs->cols-1){
                 fprintf(pf,"\n ",0);
             }
         }
@@ -700,20 +723,6 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
     fclose(pf);
 #endif // 0
 /*---------------------------------------------------------------*/
-        /* matlab : fft2_U = (Numer1 + fft2(rhs))./Denom;
-                                       F_Mat_blank_Rec               */
-
-    CvMat *F_Mat_FFT_Rec = cvCreateMat(rhs->rows,rhs->cols,CV_32FC2);
-
-    cvMerge(rhs, rhs_imag,NULL, NULL, F_Mat_FFT_Rec);
-
-    cvDFT(F_Mat_FFT_Rec, F_Mat_FFT_Rec, CV_DXT_FORWARD ,0);
-    cvSplit(F_Mat_FFT_Rec,rhs,rhs_imag, NULL, NULL);
-
-    cvReleaseMat(&F_Mat_FFT_Rec);
-
-
-
 
     CvMat* blank_FFT = cvCreateMat(rhs->rows, rhs->cols,CV_32F);
     CvMat* blank_FFT_imag = cvCreateMat(rhs->rows, rhs->cols,CV_32F);
@@ -740,6 +749,7 @@ void RecPF_constraint(int m,int n,double aTV, double aL1,CvMat* picks,CvMat* B,C
 
         cvReleaseMat(&blank_FFT);
         cvReleaseMat(&blank_FFT_imag);
+
 
 
         /* matlab : U = ifft2(fft2_U) */
